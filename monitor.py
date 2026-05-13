@@ -306,9 +306,23 @@ def criar_task_clickup(evento: Evento) -> bool:
     if CLICKUP_ASSIGNEE_IDS:
         assignees = [int(x.strip()) for x in CLICKUP_ASSIGNEE_IDS.split(",") if x.strip()]
 
+    # Formata data de ocorrencia (DD/MM/AAAA) e start_date em epoch ms para ClickUp.
+    data_ocorrencia = ""
+    start_date_ms = None
+    if evento.data_entrega:
+        try:
+            dt = datetime.fromisoformat(evento.data_entrega.replace("Z", ""))
+            data_ocorrencia = dt.strftime("%d/%m/%Y")
+            start_date_ms = int(dt.timestamp() * 1000)
+        except Exception:
+            data_ocorrencia = evento.data_entrega[:10]
+
     nome_task = f"[{evento.materialidade.upper()}] {evento.empresa} - {evento.categoria}"
+    if data_ocorrencia:
+        nome_task += f" - {data_ocorrencia}"
+
     descricao = (
-        f"**Evento detectado em {evento.data_entrega[:10]}**\n\n"
+        f"**Data de ocorrencia:** {data_ocorrencia or '-'}\n\n"
         f"**Empresa:** {evento.empresa}\n"
         f"**CNPJ:** {evento.cnpj}\n"
         f"**Categoria:** {evento.categoria}\n"
@@ -329,6 +343,9 @@ def criar_task_clickup(evento: Evento) -> bool:
     }
     if assignees:
         payload["assignees"] = assignees
+    if start_date_ms is not None:
+        payload["start_date"] = start_date_ms
+        payload["start_date_time"] = True
 
     url = f"https://api.clickup.com/api/v2/list/{CLICKUP_LIST_ID_ALERTAS}/task"
     headers = {"Authorization": CLICKUP_API_TOKEN, "Content-Type": "application/json"}
