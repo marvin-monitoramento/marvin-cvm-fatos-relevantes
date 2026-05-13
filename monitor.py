@@ -115,51 +115,71 @@ def carregar_watchlist():
 
 
 def baixar_ipe(year=None):
-    """Tenta varias combinacoes de URL (csv/zip, ano atual/anterior)."""
+    """Baixa IPE da CVM com retry e backoff. Tenta csv/zip x 2026/2025, ate 3x cada."""
     from io import BytesIO
     import zipfile
+    import time
 
     anos = [year] if year else [datetime.now().year, datetime.now().year - 1]
     sufixos = [".csv", ".zip"]
+    # User-Agent de navegador real - alguns servicos brasileiros tratam mal UA customizado
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate",
+    }
     ultima_exc = None
 
     for ano in anos:
         for suf in sufixos:
             url = f"https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/IPE/DADOS/ipe_cia_aberta_{ano}{suf}"
-            log.info("Tentando: %s", url)
-            try:
-                resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=HTTP_TIMEOUT_SECONDS)
-                resp.raise_for_status()
-                conteudo = resp.content
-                if suf == ".zip":
-                    with zipfile.ZipFile(BytesIO(conteudo)) as zf:
-                        nome_csv = [n for n in zf.namelist() if n.lower().endswith(".csv")][0]
-                        conteudo = zf.read(nome_csv)
-                df = pd.read_csv(BytesIO(conteudo), sep=";", encoding="latin-1",
-                                 dtype=str, on_bad_lines="warn")
-                log.info("IPE %d carregado: %d linhas", ano, len(df))
-                df = df.rename(columns={c: c.strip() for c in df.columns})
-                if "Data_Entrega" not in df.columns:
-                    for alt in ("Data_Recebimento", "Data_Publicacao", "Data"):
-                        if alt in df.columns:
-                            df = df.rename(columns={alt: "Data_Entrega"})
-                            break
-                df["cnpj_clean"] = df["CNPJ_Companhia"].fillna("").str.replace(r"[^\d]", "", regex=True)
-                df["cnpj_raiz"] = df["cnpj_clean"].str[:8]
-                df["Data_Entrega"] = pd.to_datetime(df["Data_Entrega"], errors="coerce")
-                return df
-            except requests.HTTPError as exc:
-                if exc.response.status_code == 404:
-                    log.info("  -> 404, tentando proxima")
+            # Ate 3 tentativas por URL com backoff exponencial (5s, 15s entre elas)
+            for tentativa in range(1, 4):
+                if tentativa > 1:
+                    espera = 5 * (2 ** (tentativa - 2))  # 5s, 10s
+                    log.info("  aguardando %ds antes de retry...", espera)
+                    time.sleep(espera)
+                log.info("Tentando (%d/3): %s", tentativa, url)
+                try:
+                    resp = requests.get(url, headers=headers, timeout=20)
+                    resp.raise_for_status()
+                    conteudo = resp.content
+                    if suf == ".zip":
+                        with zipfile.ZipFile(BytesIO(conteudo)) as zf:
+                            nome_csv = [n for n in zf.namelist() if n.lower().endswith(".csv")][0]
+                            conteudo = zf.read(nome_csv)
+                    df = pd.read_csv(BytesIO(conteudo), sep=";", encoding="latin-1",
+                                     dtype=str, on_bad_lines="warn")
+                    log.info("IPE %d carregado: %d linhas", ano, len(df))
+                    df = df.rename(columns={c: c.strip() for c in df.columns})
+                    if "Data_Entrega" not in df.columns:
+                        for alt in ("Data_Recebimento", "Data_Publicacao", "Data"):
+                            if alt in df.columns:
+                                df = df.rename(columns={alt: "Data_Entrega"})
+                                break
+                    df["cnpj_clean"] = df["CNPJ_Companhia"].fillna("").str.replace(r"[^\d]", "", regex=True)
+                    df["cnpj_raiz"] = df["cnpj_clean"].str[:8]
+                    df["Data_Entrega"] = pd.to_datetime(df["Data_Entrega"], errors="coerce")
+                    return df
+                except requests.HTTPError as exc:
+                    if exc.response.status_code == 404:
+                        log.info("  -> 404 (URL nao existe), pulando para proxima")
+                        ultima_exc = exc
+                        break  # quebra o retry, vai para proxima URL
                     ultima_exc = exc
-                    continue
-                raise
-            except Exception as exc:
-                ultima_exc = exc
-                log.warning("  -> falhou: %s", exc)
-                continue
+                    log.warning("  -> HTTP %s", exc)
+                except Exception as exc:
+                    ultima_exc = exc
+                    log.warning("  -> falhou (%d/3): %s", tentativa, exc)
 
-    raise RuntimeError(f"Nenhuma URL da CVM funcionou. Ultima: {ultima_exc}")
+    raise RuntimeError(
+        f"Nenhuma URL da CVM funcionou apos retries. Ultima: {ultima_exc}. "
+        "Verifique https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/IPE/DADOS/ no navegador."
+    )
 
 
 def classificar(row):
