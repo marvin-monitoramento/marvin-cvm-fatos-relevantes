@@ -68,8 +68,8 @@ WATCHLIST_PATH = BASE_DIR / "watchlist.csv"
 STATE_PATH = BASE_DIR / "data" / "seen_events.json"
 LAST_RUN_PATH = BASE_DIR / "data" / "last_run.json"
 HISTORICO_DIR = BASE_DIR / "historico"
-HISTORICO_CSV = HISTORICO_DIR / "historico.csv"
-HISTORICO_XLSX = HISTORICO_DIR / "historico_eventos.xlsx"
+HISTORICO_CSV = HISTORICO_DIR / "historico_github.csv"
+HISTORICO_XLSX = HISTORICO_DIR / "historico_eventos_github.xlsx"
 
 COLUNAS_HISTORICO = [
     "data_coleta", "data_entrega", "empresa", "cnpj",
@@ -326,23 +326,28 @@ def criar_task_clickup(evento: Evento) -> bool:
     if CLICKUP_ASSIGNEE_IDS:
         assignees = [int(x.strip()) for x in CLICKUP_ASSIGNEE_IDS.split(",") if x.strip()]
 
-    # Formata data de ocorrencia (DD/MM/AAAA) e start_date em epoch ms para ClickUp.
-    data_ocorrencia = ""
+    # Formata data de ocorrencia no padrao Marvin (AAAA.MM.DD) e start_date em epoch ms.
+    data_iso = ""
+    data_br = ""
     start_date_ms = None
     if evento.data_entrega:
         try:
             dt = datetime.fromisoformat(evento.data_entrega.replace("Z", ""))
-            data_ocorrencia = dt.strftime("%d/%m/%Y")
+            data_iso = dt.strftime("%Y.%m.%d")
+            data_br = dt.strftime("%d/%m/%Y")
             start_date_ms = int(dt.timestamp() * 1000)
         except Exception:
-            data_ocorrencia = evento.data_entrega[:10]
+            data_iso = evento.data_entrega[:10].replace("-", ".")
+            data_br = evento.data_entrega[:10]
 
-    nome_task = f"[{evento.materialidade.upper()}] {evento.empresa} - {evento.categoria}"
-    if data_ocorrencia:
-        nome_task += f" - {data_ocorrencia}"
+    # Padrao Marvin: AAAA.MM.DD - NOME DA EMPRESA - TEMA
+    if data_iso:
+        nome_task = f"{data_iso} - {evento.empresa} - {evento.categoria}"
+    else:
+        nome_task = f"{evento.empresa} - {evento.categoria}"
 
     descricao = (
-        f"**Data de ocorrencia:** {data_ocorrencia or '-'}\n\n"
+        f"**Data de ocorrencia:** {data_br or '-'}\n\n"
         f"**Empresa:** {evento.empresa}\n"
         f"**CNPJ:** {evento.cnpj}\n"
         f"**Categoria:** {evento.categoria}\n"
