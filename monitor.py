@@ -67,9 +67,9 @@ BASE_DIR = Path(__file__).resolve().parent
 WATCHLIST_PATH = BASE_DIR / "watchlist.csv"
 STATE_PATH = BASE_DIR / "data" / "seen_events.json"
 LAST_RUN_PATH = BASE_DIR / "data" / "last_run.json"
-HISTORICO_DIR = BASE_DIR / "historico"
-HISTORICO_CSV = HISTORICO_DIR / "historico_github.csv"
-HISTORICO_XLSX = HISTORICO_DIR / "historico_eventos_github.xlsx"
+HISTORICO_DIR = BASE_DIR / "02. Histórico"
+HISTORICO_CSV = HISTORICO_DIR / "github-cvm-fatos-relevantes.csv"
+HISTORICO_XLSX = HISTORICO_DIR / "github-cvm-fatos-relevantes.xlsx"
 
 COLUNAS_HISTORICO = [
     "data_coleta", "data_entrega", "empresa", "cnpj",
