@@ -39,7 +39,7 @@ jobs:
         run: |
           git config user.name "marvin-cvm-bot"
           git config user.email "marvin-cvm-bot@users.noreply.github.com"
-          git add historico/ data/
+          git add "02. Histórico/" data/
           if git diff --staged --quiet; then
             echo "Nada para commitar"
           else
