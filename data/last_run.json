@@ -1,12 +1,7 @@
 {
-  "executado_em": "2026-05-24T14:22:12",
-  "eventos_novos": 4,
-  "eventos_janela_total": 5,
+  "executado_em": "2026-05-25T15:46:34",
+  "eventos_novos": 0,
+  "eventos_janela_total": 4,
   "lookback_days": 10,
-  "empresas_com_evento_novo": [
-    "AMERICANAS S.A. - EM RECUPERAÇÃO JUDICIAL",
-    "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO",
-    "CVLB BRASIL S.A.",
-    "MARISA LOJAS SA"
-  ]
+  "empresas_com_evento_novo": []
 }
