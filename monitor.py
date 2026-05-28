@@ -271,15 +271,13 @@ def persistir_historico(eventos):
 def gerar_xlsx(df, path):
     from openpyxl.styles import PatternFill, Font, Alignment
     from openpyxl.utils import get_column_letter
+    # Remove colunas de juizo de valor da visao final
+    colunas_visiveis = [c for c in df.columns
+                        if c not in ("materialidade", "termos_encontrados", "fingerprint")]
+    df_view = df[colunas_visiveis].copy() if colunas_visiveis else df.copy()
+
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
-        df.to_excel(writer, sheet_name="Eventos", index=False)
-        if not df.empty:
-            resumo = (df.pivot_table(index="empresa", columns="materialidade",
-                values="fingerprint", aggfunc="count", fill_value=0)
-                .reindex(columns=["alta", "média", "baixa"], fill_value=0))
-            resumo["total"] = resumo.sum(axis=1)
-            resumo = resumo.sort_values("alta", ascending=False)
-            resumo.to_excel(writer, sheet_name="Resumo")
+        df_view.to_excel(writer, sheet_name="Eventos", index=False)
         wb = writer.book
         ws = wb["Eventos"]
         hfill = PatternFill("solid", fgColor="1F3864")
@@ -289,29 +287,10 @@ def gerar_xlsx(df, path):
             cell.alignment = Alignment(horizontal="center", vertical="center")
         ws.freeze_panes = "A2"
         widths = {"data_coleta": 18, "data_entrega": 20, "empresa": 32, "cnpj": 16,
-            "categoria": 22, "tipo": 22, "assunto": 60, "materialidade": 14,
-            "termos_encontrados": 30, "link": 45, "fingerprint": 18}
-        for idx, col in enumerate(df.columns, start=1):
+            "categoria": 22, "tipo": 22, "assunto": 60, "link": 45}
+        for idx, col in enumerate(df_view.columns, start=1):
             ws.column_dimensions[get_column_letter(idx)].width = widths.get(col, 18)
-        fa = PatternFill("solid", fgColor="FDE2E2")
-        fm = PatternFill("solid", fgColor="FFF4CE")
-        col_mat = df.columns.get_loc("materialidade") + 1 if "materialidade" in df.columns else None
-        if col_mat:
-            for r in range(2, ws.max_row + 1):
-                v = ws.cell(row=r, column=col_mat).value
-                f = fa if v == "alta" else fm if v == "média" else None
-                if f:
-                    for c in range(1, ws.max_column + 1):
-                        ws.cell(row=r, column=c).fill = f
         ws.auto_filter.ref = ws.dimensions
-        if "Resumo" in wb.sheetnames:
-            wr = wb["Resumo"]
-            for cell in wr[1]:
-                cell.fill = hfill; cell.font = hfont
-                cell.alignment = Alignment(horizontal="center")
-            wr.column_dimensions["A"].width = 35
-            for ci in range(2, wr.max_column + 1):
-                wr.column_dimensions[get_column_letter(ci)].width = 12
     log.info("Excel gerado: %s", path.name)
 
 
@@ -321,7 +300,7 @@ def criar_task_clickup(evento: Evento) -> bool:
         log.warning("CLICKUP_API_TOKEN ou CLICKUP_LIST_ID_ALERTAS nao definidos; pulando ClickUp")
         return False
 
-    prioridade = 2 if evento.materialidade == "alta" else 3  # 1=urgent, 2=high, 3=normal, 4=low
+    prioridade = 3  # 3 = normal (sem juizo de valor)  # 1=urgent, 2=high, 3=normal, 4=low
     assignees = []
     if CLICKUP_ASSIGNEE_IDS:
         assignees = [int(x.strip()) for x in CLICKUP_ASSIGNEE_IDS.split(",") if x.strip()]
@@ -353,8 +332,6 @@ def criar_task_clickup(evento: Evento) -> bool:
         f"**Categoria:** {evento.categoria}\n"
         f"**Tipo:** {evento.tipo}\n"
         f"**Assunto:** {evento.assunto}\n"
-        f"**Materialidade:** {evento.materialidade.upper()}\n"
-        f"**Termos criticos:** {', '.join(evento.termos_encontrados) or '-'}\n\n"
         f"**Documento CVM:** {evento.link}\n\n"
         f"---\n"
         f"_Detectado automaticamente pelo monitor CVM Fatos Relevantes._"
@@ -364,7 +341,7 @@ def criar_task_clickup(evento: Evento) -> bool:
         "name": nome_task,
         "description": descricao,
         "priority": prioridade,
-        "tags": ["cvm", "fato-relevante", evento.materialidade],
+        "tags": ["cvm", "fato-relevante"],
     }
     if assignees:
         payload["assignees"] = assignees
