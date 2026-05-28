@@ -9,7 +9,6 @@
 
 Use este procedimento quando:
 
-- A responsável atual sair da Marvin, ficar afastada por tempo prolongado ou trocar de função.
 - O token atual for revogado, expirado ou comprometido.
 - For necessário trocar o titular institucional do token.
 
