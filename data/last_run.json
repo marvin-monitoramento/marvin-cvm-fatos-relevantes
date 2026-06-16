@@ -1,9 +1,7 @@
 {
-  "executado_em": "2026-06-15T18:00:00",
-  "eventos_novos": 2,
+  "executado_em": "2026-06-16T17:59:40",
+  "eventos_novos": 0,
   "eventos_janela_total": 2,
   "lookback_days": 10,
-  "empresas_com_evento_novo": [
-    "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO"
-  ]
+  "empresas_com_evento_novo": []
 }
