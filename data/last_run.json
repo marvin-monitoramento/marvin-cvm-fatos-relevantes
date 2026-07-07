@@ -1,10 +1,7 @@
 {
-  "executado_em": "2026-07-06T16:16:10",
-  "eventos_novos": 3,
+  "executado_em": "2026-07-07T15:41:37",
+  "eventos_novos": 0,
   "eventos_janela_total": 3,
   "lookback_days": 10,
-  "empresas_com_evento_novo": [
-    "AMERICANAS S.A. - EM RECUPERAÇÃO JUDICIAL",
-    "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO"
-  ]
+  "empresas_com_evento_novo": []
 }
