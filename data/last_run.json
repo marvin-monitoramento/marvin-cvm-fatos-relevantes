@@ -1,7 +1,10 @@
 {
-  "executado_em": "2026-07-19T14:21:39",
-  "eventos_novos": 0,
-  "eventos_janela_total": 0,
+  "executado_em": "2026-07-20T15:06:35",
+  "eventos_novos": 2,
+  "eventos_janela_total": 2,
   "lookback_days": 10,
-  "empresas_com_evento_novo": []
+  "empresas_com_evento_novo": [
+    "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO",
+    "GRUPO CASAS BAHIA S.A."
+  ]
 }
