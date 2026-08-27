@@ -1,12 +1,7 @@
 {
-  "executado_em": "2026-08-26T13:50:09",
-  "eventos_novos": 6,
-  "eventos_janela_total": 6,
+  "executado_em": "2026-08-27T22:43:49",
+  "eventos_novos": 0,
+  "eventos_janela_total": 4,
   "lookback_days": 10,
-  "empresas_com_evento_novo": [
-    "AMERICANAS S.A. - EM RECUPERAÇÃO JUDICIAL",
-    "CVLB BRASIL S.A EM RECUPERAÇÃO JUDICAL",
-    "GRUPO CASAS BAHIA S.A.",
-    "MARISA LOJAS SA"
-  ]
+  "empresas_com_evento_novo": []
 }
