@@ -1,7 +1,11 @@
 {
-  "executado_em": "2026-09-19T16:11:32",
-  "eventos_novos": 0,
-  "eventos_janela_total": 2,
+  "executado_em": "2026-09-21T18:25:48",
+  "eventos_novos": 12,
+  "eventos_janela_total": 12,
   "lookback_days": 10,
-  "empresas_com_evento_novo": []
+  "empresas_com_evento_novo": [
+    "AMERICANAS S.A. - EM RECUPERAÇÃO JUDICIAL",
+    "GRUPO CASAS BAHIA S.A.",
+    "MARISA LOJAS SA"
+  ]
 }
