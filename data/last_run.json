@@ -1,7 +1,11 @@
 {
-  "executado_em": "2026-10-03T16:55:58",
-  "eventos_novos": 0,
-  "eventos_janela_total": 0,
+  "executado_em": "2026-10-04T17:14:20",
+  "eventos_novos": 4,
+  "eventos_janela_total": 4,
   "lookback_days": 10,
-  "empresas_com_evento_novo": []
+  "empresas_com_evento_novo": [
+    "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO",
+    "GRUPO CASAS BAHIA S.A.",
+    "MARISA LOJAS SA"
+  ]
 }
