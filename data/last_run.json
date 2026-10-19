@@ -1,10 +1,7 @@
 {
-  "executado_em": "2026-10-18T16:19:11",
-  "eventos_novos": 2,
+  "executado_em": "2026-10-19T18:56:44",
+  "eventos_novos": 0,
   "eventos_janela_total": 2,
   "lookback_days": 10,
-  "empresas_com_evento_novo": [
-    "AMERICANAS S.A. - EM RECUPERAÇÃO JUDICIAL",
-    "GRUPO CASAS BAHIA S.A."
-  ]
+  "empresas_com_evento_novo": []
 }
