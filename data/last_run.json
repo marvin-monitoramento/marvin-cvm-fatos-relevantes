@@ -1,9 +1,7 @@
 {
-  "executado_em": "2026-11-01T18:13:29",
-  "eventos_novos": 2,
+  "executado_em": "2026-11-02T22:04:06",
+  "eventos_novos": 0,
   "eventos_janela_total": 2,
   "lookback_days": 10,
-  "empresas_com_evento_novo": [
-    "GRUPO CASAS BAHIA S.A. - EM RECUPERAÇÃO JUDICIAL"
-  ]
+  "empresas_com_evento_novo": []
 }
