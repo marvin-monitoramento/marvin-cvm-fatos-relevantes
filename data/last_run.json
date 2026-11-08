@@ -1,7 +1,10 @@
 {
-  "executado_em": "2026-11-07T17:55:30",
-  "eventos_novos": 0,
-  "eventos_janela_total": 0,
+  "executado_em": "2026-11-08T18:11:13",
+  "eventos_novos": 2,
+  "eventos_janela_total": 2,
   "lookback_days": 10,
-  "empresas_com_evento_novo": []
+  "empresas_com_evento_novo": [
+    "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO",
+    "GRUPO CASAS BAHIA S.A. - EM RECUPERAÇÃO JUDICIAL"
+  ]
 }
